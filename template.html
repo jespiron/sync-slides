@@ -6,9 +6,12 @@
             console.log('Received message:', event.data);
             const data = JSON.parse(event.data);
             if (data.current_slide !== undefined) {
-                const parent = document.querySelector('.bespoke-parent');
-                if (parent) {
-                    parent.dataset.bespokePage = data.current_slide.toString();
+                const nextButton = document.querySelector('[data-bespoke-marp-osc="next"]');
+                if (nextButton) {
+                    console.log('Found next button, clicking...');
+                    nextButton.click();
+                } else {
+                    console.error('Next button not found');
                 }
             }
         };
