@@ -1,0 +1,34 @@
+<script>
+    function connectWebSocket() {
+        const ws = new WebSocket('ws://localhost:8080');
+        
+        ws.onmessage = function(event) {
+            console.log('Received message:', event.data);
+            const data = JSON.parse(event.data);
+            if (data.current_slide !== undefined) {
+                const parent = document.querySelector('.bespoke-parent');
+                if (parent) {
+                    parent.dataset.bespokePage = data.current_slide.toString();
+                }
+            }
+        };
+        
+        ws.onerror = function(error) {
+            console.error('WebSocket error:', error);
+        };
+        
+        ws.onopen = function() {
+            console.log('Connected to presenter server');
+        };
+
+        ws.onclose = function() {
+            console.log('Connection closed, attempting to reconnect...');
+            setTimeout(connectWebSocket, 1000); // Retry after 1 second
+        };
+
+        return ws;
+    }
+
+    // Initial connection
+    let ws = connectWebSocket();
+</script>
