@@ -17,7 +17,7 @@ In a separate terminal, start the student application:
 The presenter can send commands to advance slides, and students will receive updates in real time.
 
 ```
-nc 127.0.0.1 8080
+websocat ws://127.0.0.1:8080
 next_slide
 ```
 
