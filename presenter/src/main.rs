@@ -27,16 +27,16 @@ async fn main() {
         tokio::spawn(async move {
             while let Some(Ok(msg)) = read.next().await {
                 let msg_text = msg.to_text().unwrap().trim();
-                if msg_text == "next_slide" {
-                    let mut slide = current_slide.lock().await;
-                    *slide += 1;
-                    println!("Bumped slide to {}", *slide);
-                    let update = json!({
-                        "current_slide": *slide
-                    }).to_string();
-                    
-                    if let Err(e) = tx.send(update) {
-                        println!("Broadcast error: {}", e);
+                while let Some(Ok(msg)) = read.next().await {
+                    let msg_text = msg.to_text().unwrap().trim();
+                    if msg_text == "next_slide" || msg_text == "prev_slide" {
+                        let update = json!({
+                            "command": msg_text
+                        }).to_string();
+                        
+                        if let Err(e) = tx.send(update) {
+                            println!("Broadcast error: {}", e);
+                        }
                     }
                 }
             }

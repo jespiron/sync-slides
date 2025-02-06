@@ -5,13 +5,12 @@
         ws.onmessage = function(event) {
             console.log('Received message:', event.data);
             const data = JSON.parse(event.data);
-            if (data.current_slide !== undefined) {
-                const nextButton = document.querySelector('[data-bespoke-marp-osc="next"]');
-                if (nextButton) {
-                    console.log('Found next button, clicking...');
-                    nextButton.click();
-                } else {
-                    console.error('Next button not found');
+            if (data.command) {
+                const buttonType = data.command === "next_slide" ? "next" : "prev";
+                const button = document.querySelector(`[data-bespoke-marp-osc="${buttonType}"]`);
+                if (button) {
+                    console.log(`Clicking ${buttonType} button`);
+                    button.click();
                 }
             }
         };
