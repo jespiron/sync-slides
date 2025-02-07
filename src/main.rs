@@ -1,8 +1,7 @@
 use tokio::net::TcpListener;
 use futures_util::{SinkExt, StreamExt};
 use tokio_tungstenite::accept_async;
-use std::sync::Arc;
-use tokio::sync::{Mutex, broadcast};
+use tokio::sync::{broadcast};
 use serde_json::json;
 use std::io::{self, Write};
 
@@ -13,13 +12,11 @@ async fn main() {
     io::stdout().flush().unwrap();
 
     let (tx, _) = broadcast::channel::<String>(32);
-    let current_slide = Arc::new(Mutex::new(0));
 
     while let Ok((stream, _)) = listener.accept().await {
         let ws_stream = accept_async(stream).await.expect("Failed to accept");
         let (mut write, mut read) = ws_stream.split();
         let tx = tx.clone();
-        let current_slide = Arc::clone(&current_slide);
         
         let mut rx = tx.subscribe();
 
@@ -27,16 +24,13 @@ async fn main() {
         tokio::spawn(async move {
             while let Some(Ok(msg)) = read.next().await {
                 let msg_text = msg.to_text().unwrap().trim();
-                while let Some(Ok(msg)) = read.next().await {
-                    let msg_text = msg.to_text().unwrap().trim();
-                    if msg_text == "next_slide" || msg_text == "prev_slide" {
-                        let update = json!({
-                            "command": msg_text
-                        }).to_string();
-                        
-                        if let Err(e) = tx.send(update) {
-                            println!("Broadcast error: {}", e);
-                        }
+                if msg_text == "next_slide" || msg_text == "prev_slide" {
+                    let update = json!({
+                        "command": msg_text
+                    }).to_string();
+                    
+                    if let Err(e) = tx.send(update) {
+                        println!("Broadcast error: {}", e);
                     }
                 }
             }

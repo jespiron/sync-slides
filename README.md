@@ -12,7 +12,6 @@ This injects the script in `template.html` into the slides at `output.html`.
 
 First, start the presenter application:
 ```
-cd presenter
 cargo run
 ```
 
